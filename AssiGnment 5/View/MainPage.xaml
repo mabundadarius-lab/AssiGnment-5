@@ -1,0 +1,91 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="AssiGnment_5.MainPage"
+             Shell.NavBarIsVisible="False"
+             >
+
+    <ScrollView>
+        <VerticalStackLayout Padding="20" Spacing="15">
+            <!--Profile-->
+            <Label Text="Profile"
+                   FontSize="20"
+                   FontAttributes="Bold"
+                   />
+
+            <!-- Bonus: Profile Icon section -->
+            <Border x:Name="Photoborder"
+                    Stroke="Green"
+                    StrokeThickness="3"
+                    WidthRequest="140"
+                    HeightRequest="140"
+                    StrokeShape="RoundRectangle 100"
+                    >
+                <!-- Image control to display the user's profile picture -->
+                <Image x:Name="ProfileImage"
+                       Source="profiledefault.png"
+                       HeightRequest="120"   
+                       WidthRequest="120"
+                       Aspect="AspectFill"/>
+                    <!-- Ensures the image fills the box while maintaining aspect ratio -->
+            </Border>
+
+            <!-- Button to allow the user to change or pick a new profile picture -->
+            <Button Text="Change Picture"
+                    TextColor="white"
+                    BackgroundColor="Green"
+                    HeightRequest="10"
+                    WidthRequest="130"
+                    CornerRadius="25"
+                    Clicked="OnChoosePictureClicked"/>
+
+            <!-- Text entry for user's first name -->
+            <Border StrokeThickness="1" StrokeShape="RoundRectangle 25" HeightRequest="50" Margin="0,30,0,0">
+            <Entry x:Name="NameEntry" 
+                   Placeholder="Name"
+                   VerticalTextAlignment="Center"
+                   HorizontalTextAlignment="Start"
+                   Margin="10,0,0,0"/>
+             </Border>
+
+            <!-- Text entry for user's surname -->
+            <Border StrokeThickness="1" StrokeShape="RoundRectangle 25" HeightRequest="50">
+                <Entry x:Name="SurnameEntry" 
+                       Placeholder="Surname"
+                       VerticalTextAlignment="Center"
+                       Margin="10,0,0,0"
+                       />
+            </Border>
+            
+
+            <!-- Text entry for user's email address -->
+            <Border StrokeThickness="1" StrokeShape="RoundRectangle 25" HeightRequest="50">
+            <Entry x:Name="EmailEntry" 
+                   Placeholder="Email Address"
+                   VerticalTextAlignment="Center"
+                   Margin="10,0,0,0"/>
+            </Border>
+
+            <!-- Editor control for multi-line text input (user bio) -->
+            <Border StrokeThickness="1" StrokeShape="RoundRectangle 25">
+            <Editor x:Name="BioEditor" 
+                    Placeholder="Bio" 
+                    HeightRequest="100"
+                    VerticalTextAlignment="Center"
+                    Margin="10,0,0,0"/>
+            </Border>
+            <!-- Sets height so bio field is comfortably visible -->
+
+            <!-- Button to save the profile data to local storage -->
+            <Button Text="Save Profile" 
+                    Clicked="OnSaveClicked"
+                    BackgroundColor="Green"
+                    CornerRadius="25"
+                    Margin="0,20,0,0"/>
+
+
+
+        </VerticalStackLayout>
+    </ScrollView>
+
+</ContentPage>
