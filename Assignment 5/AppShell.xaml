@@ -3,12 +3,21 @@
     x:Class="AssiGnment_5.AppShell"
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-    xmlns:local="clr-namespace:AssiGnment_5"
+    xmlns:local="clr-namespace:AssiGnment_5.View"
     Title="AssiGnment_5">
 
-    <ShellContent
-        Title="Home"
-        ContentTemplate="{DataTemplate local:MainPage}"
-        Route="MainPage" />
+    <!-- Flyout menu items -->
+    <FlyoutItem Title="Profile" Icon="profile.png">
+        <ShellContent
+            ContentTemplate="{DataTemplate local:MainPage}"
+            Route="MainPage" />
+    </FlyoutItem>
+
+    <FlyoutItem Title="Shopping Items" Icon="shopping.png">
+        <ShellContent
+            ContentTemplate="{DataTemplate local:ShoppingItems}"
+            Route="ShoppingItems" />
+    </FlyoutItem>
 
 </Shell>
+
