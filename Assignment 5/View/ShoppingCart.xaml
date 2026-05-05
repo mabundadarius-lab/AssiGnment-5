@@ -2,9 +2,10 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="AssiGnment_5.View.ShoppingCart"
-             Title="My Cart">
+             Title="My Cart"
+             Shell.NavBarIsVisible="False">
 
-    <Grid RowDefinitions="Auto,*,Auto">
+    <Grid RowDefinitions="Auto,*,Auto,Auto">
 
         <!-- Header -->
         <VerticalStackLayout Grid.Row="0" Padding="20,16,20,8" Spacing="4">
@@ -85,13 +86,11 @@
                                    TextColor="#2e7d32"
                                    FontAttributes="Bold"/>
 
-                            <!-- Buttons: Remove One | Remove All -->
+                            <!-- Remove One | Remove All -->
                             <Grid Grid.Row="3" Grid.ColumnSpan="2"
                                   ColumnDefinitions="*,*"
                                   Margin="0,8,0,0"
                                   ColumnSpacing="8">
-
-                                <!-- Remove One (-1) -->
                                 <Button Grid.Column="0"
                                         Text="− Remove One"
                                         BackgroundColor="#ff7043"
@@ -100,8 +99,6 @@
                                         HeightRequest="40"
                                         Clicked="OnRemoveOneClicked"
                                         CommandParameter="{Binding CartId}"/>
-
-                                <!-- Remove All -->
                                 <Button Grid.Column="1"
                                         Text="🗑 Remove All"
                                         BackgroundColor="#e53935"
@@ -111,15 +108,37 @@
                                         Clicked="OnRemoveAllClicked"
                                         CommandParameter="{Binding CartId}"/>
                             </Grid>
-
                         </Grid>
                     </Border>
                 </DataTemplate>
             </CollectionView.ItemTemplate>
         </CollectionView>
 
+        <!-- ─── TOTAL PANEL ─── -->
+        <Border Grid.Row="2"
+                Stroke="#e0e0e0"
+                StrokeThickness="1"
+                StrokeShape="RoundRectangle 14"
+                Padding="16,12"
+                Margin="12,4,12,4"
+                IsVisible="{Binding HasItems}">
+            <Grid ColumnDefinitions="*,Auto">
+                <Label Grid.Column="0"
+                       Text="Cart Total"
+                       FontSize="18"
+                       FontAttributes="Bold"
+                       VerticalOptions="Center"/>
+                <Label Grid.Column="1"
+                       Text="{Binding CartTotalDisplay}"
+                       FontSize="20"
+                       FontAttributes="Bold"
+                       TextColor="#2e7d32"
+                       VerticalOptions="Center"/>
+            </Grid>
+        </Border>
+
         <!-- Bottom Buttons -->
-        <VerticalStackLayout Grid.Row="2" Padding="16,8" Spacing="10">
+        <VerticalStackLayout Grid.Row="3" Padding="16,4,16,12" Spacing="10">
             <Button Text="Clear Cart"
                     Clicked="OnClearCartClicked"
                     BackgroundColor="#e53935"

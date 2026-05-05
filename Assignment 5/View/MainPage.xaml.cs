@@ -1,6 +1,7 @@
 ﻿using AssiGnment_5.Models;
 using AssiGnment_5.Services;
 using Microsoft.Maui.Storage;
+using System.Text.RegularExpressions;
 
 namespace AssiGnment_5.View
 {
@@ -10,17 +11,16 @@ namespace AssiGnment_5.View
         private Guid _userId;
         private string _currentImageUrl = string.Empty;
         private string _localImagePath = string.Empty;
+        private bool _profileSaved = false;
 
         public MainPage()
         {
             InitializeComponent();
 
-            // Set default IMMEDIATELY after InitializeComponent — first thing rendered
             ProfileImage.Source = "profiledefault.png";
 
             _supabase = new SupabaseService();
 
-            // Retrieve or create a persistent user ID
             var stored = Preferences.Get("UserId", string.Empty);
             if (!string.IsNullOrEmpty(stored))
                 _userId = Guid.Parse(stored);
@@ -30,14 +30,12 @@ namespace AssiGnment_5.View
                 Preferences.Set("UserId", _userId.ToString());
             }
 
-            // Restore local avatar instantly (no network) if one was saved before
             string savedLocal = Preferences.Get("LocalAvatarPath", string.Empty);
             if (!string.IsNullOrEmpty(savedLocal) && File.Exists(savedLocal))
             {
                 _localImagePath = savedLocal;
                 ProfileImage.Source = ImageSource.FromFile(savedLocal);
             }
-            // Otherwise default stays — no async, no blank flash
         }
 
         // ─── PAGE LIFECYCLE ──────────────────────────────────────────────────────
@@ -46,7 +44,6 @@ namespace AssiGnment_5.View
         {
             base.OnAppearing();
 
-            // Guarantee image is visible before any network call
             if (string.IsNullOrEmpty(_localImagePath))
                 ProfileImage.Source = "profiledefault.png";
 
@@ -60,8 +57,6 @@ namespace AssiGnment_5.View
             try
             {
                 var profile = await _supabase.GetProfileByIdAsync(_userId);
-
-                // Always restore image right after the await — it may have blanked
                 RestoreImage();
 
                 if (profile != null)
@@ -71,23 +66,28 @@ namespace AssiGnment_5.View
                     EmailEntry.Text = profile.EmailAddress;
                     BioEditor.Text = profile.Bio;
 
+                    _profileSaved = true;
+                    UpdateShoppingButton();
+                    UpdateHeading(profile.Name, profile.Surname);
+
                     if (!string.IsNullOrEmpty(profile.ProfileIconPath))
                     {
                         _currentImageUrl = profile.ProfileIconPath;
-
-                        // Prefer local copy — fast and no network flicker
                         if (!string.IsNullOrEmpty(_localImagePath) && File.Exists(_localImagePath))
                             ProfileImage.Source = ImageSource.FromFile(_localImagePath);
                         else
                             ApplyRemoteImage(_currentImageUrl);
                     }
-                    // profile exists but no image → RestoreImage() already set default above
                 }
-                // no profile → RestoreImage() already set default above
+                else
+                {
+                    _profileSaved = false;
+                    UpdateShoppingButton();
+                    ProfileHeading.Text = "Profile";
+                }
             }
             catch
             {
-                // Network error → keep whatever is showing (default or local)
                 RestoreImage();
             }
         }
@@ -96,21 +96,65 @@ namespace AssiGnment_5.View
 
         private async void OnSaveClicked(object sender, EventArgs e)
         {
+            // ── Required field checks ──────────────────────────────────────────
+            if (string.IsNullOrWhiteSpace(NameEntry.Text))
+            {
+                await DisplayAlert("Required", "Please enter your Name.", "OK");
+                return;
+            }
+
+            if (string.IsNullOrWhiteSpace(SurnameEntry.Text))
+            {
+                await DisplayAlert("Required", "Please enter your Surname.", "OK");
+                return;
+            }
+
+            if (string.IsNullOrWhiteSpace(EmailEntry.Text))
+            {
+                await DisplayAlert("Required", "Please enter your Email Address.", "OK");
+                return;
+            }
+
+            // ── Email format validation ────────────────────────────────────────
+            if (!IsValidEmail(EmailEntry.Text.Trim()))
+            {
+                await DisplayAlert("Invalid Email",
+                    "Please enter a valid email address.\n\nExamples:\n• user@example.com\n• name.surname@domain.co.za",
+                    "OK");
+                EmailEntry.Focus(); // bring focus back to email field
+                return;
+            }
+
+            if (string.IsNullOrWhiteSpace(BioEditor.Text))
+            {
+                await DisplayAlert("Required", "Please enter your Bio.", "OK");
+                return;
+            }
+
+            // ── Save to Supabase ───────────────────────────────────────────────
             try
             {
+                string name = NameEntry.Text.Trim();
+                string surname = SurnameEntry.Text.Trim();
+
                 var profile = new UserProfile
                 {
                     Id = _userId,
-                    Name = NameEntry.Text?.Trim() ?? string.Empty,
-                    Surname = SurnameEntry.Text?.Trim() ?? string.Empty,
-                    EmailAddress = EmailEntry.Text?.Trim() ?? string.Empty,
-                    Bio = BioEditor.Text?.Trim() ?? string.Empty,
+                    Name = name,
+                    Surname = surname,
+                    EmailAddress = EmailEntry.Text.Trim(),
+                    Bio = BioEditor.Text.Trim(),
                     ProfileIconPath = _currentImageUrl
                 };
 
                 await _supabase.SaveProfileAsync(profile);
+
+                UpdateHeading(name, surname);
+                _profileSaved = true;
+                UpdateShoppingButton();
+
                 RestoreImage();
-                await DisplayAlert("Success", "Profile saved!", "OK");
+                await DisplayAlert("Success", "Profile saved! You can now go shopping.", "OK");
                 RestoreImage();
             }
             catch (Exception ex)
@@ -121,7 +165,30 @@ namespace AssiGnment_5.View
             }
         }
 
-        // ─── PROFILE PICTURE ─────────────────────────────────────────────────────
+        // ─── EMAIL VALIDATION ─────────────────────────────────────────────────────
+
+        /// <summary>
+        /// Validates email format using a standard regex.
+        /// Rules enforced:
+        ///   • Must have exactly one @ symbol
+        ///   • Local part (before @) must not be empty
+        ///   • Domain part must have at least one dot
+        ///   • No spaces allowed anywhere
+        ///   • No consecutive dots
+        ///   • TLD must be at least 2 characters (e.g. .com, .za)
+        /// </summary>
+        private static bool IsValidEmail(string email)
+        {
+            if (string.IsNullOrWhiteSpace(email)) return false;
+
+            // Standard email regex — covers the vast majority of valid addresses
+            const string pattern =
+                @"^[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}$";
+
+            return Regex.IsMatch(email, pattern, RegexOptions.IgnoreCase);
+        }
+
+        // ─── PROFILE PICTURE (optional) ──────────────────────────────────────────
 
         private async void OnChoosePictureClicked(object sender, EventArgs e)
         {
@@ -135,18 +202,14 @@ namespace AssiGnment_5.View
 
                 if (result == null) { RestoreImage(); return; }
 
-                // Save permanent local copy named by userId so it survives reinstall data
                 string fileName = $"avatar_{_userId}{Path.GetExtension(result.FullPath)}";
                 string localPath = Path.Combine(FileSystem.AppDataDirectory, fileName);
                 File.Copy(result.FullPath, localPath, true);
 
                 _localImagePath = localPath;
                 Preferences.Set("LocalAvatarPath", localPath);
-
-                // Show local file immediately — rock solid, no network dependency
                 ProfileImage.Source = ImageSource.FromFile(localPath);
 
-                // Upload to Supabase
                 string? publicUrl = await _supabase.UploadProfilePictureAsync(_userId, localPath);
                 RestoreImage();
 
@@ -178,22 +241,31 @@ namespace AssiGnment_5.View
             }
         }
 
-        // ─── HELPERS ─────────────────────────────────────────────────────────────
+        // ─── HELPERS , updated to only show the Profile {Name}─────────────────────────────────────────────────────────────
 
-        /// <summary>
-        /// Restores the best available image in priority order.
-        /// NEVER leaves the image blank — always falls back to default.
-        /// </summary>
+        private void UpdateHeading(string name, string surname)
+        {
+            if (string.IsNullOrWhiteSpace(name) && string.IsNullOrWhiteSpace(surname))
+                ProfileHeading.Text = "Profile";
+            else
+                ProfileHeading.Text = $"Profile of {name}".Trim();
+        }
+
+        private void UpdateShoppingButton()
+        {
+            ShoppingButton.IsEnabled = _profileSaved;
+            ShoppingButton.Opacity = _profileSaved ? 1.0 : 0.4;
+            SaveHintLabel.IsVisible = !_profileSaved;
+        }
+
         private void RestoreImage()
         {
-            // 1. In-memory local path (set this session)
             if (!string.IsNullOrEmpty(_localImagePath) && File.Exists(_localImagePath))
             {
                 ProfileImage.Source = ImageSource.FromFile(_localImagePath);
                 return;
             }
 
-            // 2. Saved local path from previous session
             string saved = Preferences.Get("LocalAvatarPath", string.Empty);
             if (!string.IsNullOrEmpty(saved) && File.Exists(saved))
             {
@@ -202,14 +274,12 @@ namespace AssiGnment_5.View
                 return;
             }
 
-            // 3. Remote URL from Supabase
             if (!string.IsNullOrEmpty(_currentImageUrl))
             {
                 ApplyRemoteImage(_currentImageUrl);
                 return;
             }
 
-            // 4. Default — always works, no network needed
             ProfileImage.Source = "profiledefault.png";
         }
 

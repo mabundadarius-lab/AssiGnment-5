@@ -1,4 +1,5 @@
 ﻿using System.Collections.ObjectModel;
+using System.Collections.Specialized;
 using AssiGnment_5.Models;
 using AssiGnment_5.Services;
 using Microsoft.Maui.Storage;
@@ -17,6 +18,7 @@ namespace AssiGnment_5.ViewModel
         public string PriceDisplay => $"R{Price:N2} each";
         public string SubtotalDisplay => $"Subtotal: R{Price * Quantity:N2}";
         public string QuantityDisplay => $"Qty: {Quantity}";
+        public decimal Subtotal => Price * Quantity;
     }
 
     public class ShoppingCartViewModel : BaseViewModel
@@ -26,11 +28,37 @@ namespace AssiGnment_5.ViewModel
 
         public ObservableCollection<CartItemDisplay> CartItems { get; } = new();
 
+        // Total of all items in cart
+        private decimal _cartTotal;
+        public decimal CartTotal
+        {
+            get => _cartTotal;
+            private set
+            {
+                _cartTotal = value;
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(CartTotalDisplay));
+                OnPropertyChanged(nameof(HasItems));
+            }
+        }
+
+        public string CartTotalDisplay => $"Total: R{CartTotal:N2}";
+        public bool HasItems => CartItems.Count > 0;
+
         public ShoppingCartViewModel()
         {
             _service = new SupabaseService();
             var stored = Preferences.Get("UserId", string.Empty);
             _profileId = string.IsNullOrEmpty(stored) ? Guid.NewGuid() : Guid.Parse(stored);
+
+            // Recalculate total whenever the collection changes
+            CartItems.CollectionChanged += (_, _) => RecalculateTotal();
+        }
+
+        private void RecalculateTotal()
+        {
+            CartTotal = CartItems.Sum(i => i.Subtotal);
+            OnPropertyChanged(nameof(HasItems));
         }
 
         public async Task InitAsync()
@@ -53,6 +81,7 @@ namespace AssiGnment_5.ViewModel
                         Quantity = row.Quantity
                     });
                 }
+                RecalculateTotal();
             }
             catch (Exception ex)
             {
@@ -64,13 +93,12 @@ namespace AssiGnment_5.ViewModel
             }
         }
 
-        // Removes ONE unit — decreases qty by 1, deletes row at 0
         public async Task RemoveOneAsync(int cartId)
         {
             try
             {
                 await _service.RemoveOneFromCartAsync(cartId);
-                await InitAsync(); // reload to reflect updated qty or removal
+                await InitAsync();
             }
             catch (Exception ex)
             {
@@ -78,7 +106,6 @@ namespace AssiGnment_5.ViewModel
             }
         }
 
-        // Removes the entire row regardless of quantity
         public async Task RemoveAllAsync(int cartId)
         {
             try
@@ -98,6 +125,7 @@ namespace AssiGnment_5.ViewModel
             {
                 CartItems.Clear();
                 await _service.ClearCartAsync(_profileId);
+                RecalculateTotal();
             }
             catch (Exception ex)
             {

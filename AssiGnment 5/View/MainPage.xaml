@@ -1,89 +1,116 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             x:Class="AssiGnment_5.MainPage"
-             Shell.NavBarIsVisible="False"
-             >
+             x:Class="AssiGnment_5.View.MainPage"
+             Shell.NavBarIsVisible="False">
 
     <ScrollView>
-        <VerticalStackLayout Padding="20" Spacing="15">
-            <!--Profile-->
-            <Label Text="Profile"
-                   FontSize="20"
-                   FontAttributes="Bold"
-                   />
+        <VerticalStackLayout Padding="24" Spacing="14">
 
-            <!-- Bonus: Profile Icon section -->
-            <Border x:Name="Photoborder"
-                    Stroke="Green"
+            <!-- Dynamic heading — updates after save -->
+            <Label x:Name="ProfileHeading"
+                   Text="Profile"
+                   FontSize="26"
+                   FontAttributes="Bold"
+                   Margin="0,10,0,4"/>
+
+            <!-- Profile Picture (optional) -->
+            <Border Stroke="Green"
                     StrokeThickness="3"
                     WidthRequest="140"
                     HeightRequest="140"
                     StrokeShape="RoundRectangle 100"
-                    >
-                <!-- Image control to display the user's profile picture -->
+                    HorizontalOptions="Center">
                 <Image x:Name="ProfileImage"
                        Source="profiledefault.png"
-                       HeightRequest="120"   
-                       WidthRequest="120"
+                       HeightRequest="134"
+                       WidthRequest="134"
                        Aspect="AspectFill"/>
-                    <!-- Ensures the image fills the box while maintaining aspect ratio -->
             </Border>
 
-            <!-- Button to allow the user to change or pick a new profile picture -->
+            <Label Text="Profile picture is optional"
+                   FontSize="11"
+                   TextColor="Gray"
+                   HorizontalOptions="Center"
+                   Margin="0,-6,0,0"/>
+
             <Button Text="Change Picture"
-                    TextColor="white"
+                    TextColor="White"
                     BackgroundColor="Green"
-                    HeightRequest="10"
-                    WidthRequest="130"
-                    CornerRadius="25"
+                    HeightRequest="40"
+                    WidthRequest="150"
+                    CornerRadius="20"
+                    HorizontalOptions="Center"
                     Clicked="OnChoosePictureClicked"/>
 
-            <!-- Text entry for user's first name -->
-            <Border StrokeThickness="1" StrokeShape="RoundRectangle 25" HeightRequest="50" Margin="0,30,0,0">
-            <Entry x:Name="NameEntry" 
-                   Placeholder="Name"
-                   VerticalTextAlignment="Center"
-                   HorizontalTextAlignment="Start"
-                   Margin="10,0,0,0"/>
-             </Border>
-
-            <!-- Text entry for user's surname -->
-            <Border StrokeThickness="1" StrokeShape="RoundRectangle 25" HeightRequest="50">
-                <Entry x:Name="SurnameEntry" 
-                       Placeholder="Surname"
+            <!-- Name (required) -->
+            <Border StrokeThickness="1" StrokeShape="RoundRectangle 25" HeightRequest="50" Margin="0,10,0,0">
+                <Entry x:Name="NameEntry"
+                       Placeholder="Name *"
                        VerticalTextAlignment="Center"
-                       Margin="10,0,0,0"
-                       />
+                       Margin="14,0,0,0"/>
             </Border>
-            
 
-            <!-- Text entry for user's email address -->
+            <!-- Surname (required) -->
             <Border StrokeThickness="1" StrokeShape="RoundRectangle 25" HeightRequest="50">
-            <Entry x:Name="EmailEntry" 
-                   Placeholder="Email Address"
-                   VerticalTextAlignment="Center"
-                   Margin="10,0,0,0"/>
+                <Entry x:Name="SurnameEntry"
+                       Placeholder="Surname *"
+                       VerticalTextAlignment="Center"
+                       Margin="14,0,0,0"/>
             </Border>
 
-            <!-- Editor control for multi-line text input (user bio) -->
-            <Border StrokeThickness="1" StrokeShape="RoundRectangle 25">
-            <Editor x:Name="BioEditor" 
-                    Placeholder="Bio" 
-                    HeightRequest="100"
-                    VerticalTextAlignment="Center"
-                    Margin="10,0,0,0"/>
+            <!-- Email (required) -->
+            <Border StrokeThickness="1" StrokeShape="RoundRectangle 25" HeightRequest="50">
+                <Entry x:Name="EmailEntry"
+                       Placeholder="Email Address *"
+                       Keyboard="Email"
+                       VerticalTextAlignment="Center"
+                       Margin="14,0,0,0"/>
             </Border>
-            <!-- Sets height so bio field is comfortably visible -->
 
-            <!-- Button to save the profile data to local storage -->
-            <Button Text="Save Profile" 
+            <!-- Bio (required) -->
+            <Border StrokeThickness="1" StrokeShape="RoundRectangle 20">
+                <Editor x:Name="BioEditor"
+                        Placeholder="Bio *"
+                        HeightRequest="110"
+                        Margin="14,8,8,8"/>
+            </Border>
+
+            <Label Text="* Required fields"
+                   FontSize="11"
+                   TextColor="Gray"
+                   Margin="4,0,0,0"/>
+
+            <!-- Save Profile -->
+            <Button Text="Save Profile"
                     Clicked="OnSaveClicked"
                     BackgroundColor="Green"
+                    TextColor="White"
                     CornerRadius="25"
-                    Margin="0,20,0,0"/>
+                    HeightRequest="50"
+                    Margin="0,6,0,0"/>
 
+            <!-- Hint shown when profile not yet saved -->
+            <Label x:Name="SaveHintLabel"
+                   Text="⚠ Please save your profile first to start shopping."
+                   FontSize="13"
+                   TextColor="#e65100"
+                   HorizontalOptions="Center"
+                   HorizontalTextAlignment="Center"
+                   IsVisible="True"
+                   Margin="0,2,0,0"/>
 
+            <!-- Go to Shopping — disabled until profile saved -->
+            <Button x:Name="ShoppingButton"
+                    Text="Go to Shopping 🛒"
+                    Clicked="OnShoppingClicked"
+                    BackgroundColor="#1a73e8"
+                    TextColor="White"
+                    CornerRadius="25"
+                    HeightRequest="50"
+                    IsEnabled="False"
+                    Opacity="0.4"
+                    Margin="0,0,0,20"/>
 
         </VerticalStackLayout>
     </ScrollView>
