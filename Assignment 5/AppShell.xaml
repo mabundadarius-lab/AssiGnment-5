@@ -4,20 +4,13 @@
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     xmlns:local="clr-namespace:AssiGnment_5.View"
-    Title="AssiGnment_5">
+    Shell.FlyoutBehavior="Disabled">
 
-    <!-- Flyout menu items -->
-    <FlyoutItem Title="Profile" Icon="profile.png">
-        <ShellContent
-            ContentTemplate="{DataTemplate local:MainPage}"
-            Route="MainPage" />
-    </FlyoutItem>
-
-    <FlyoutItem Title="Shopping Items" Icon="shopping.png">
-        <ShellContent
-            ContentTemplate="{DataTemplate local:ShoppingItems}"
-            Route="ShoppingItems" />
-    </FlyoutItem>
+    <!-- Profile page is the root -->
+    <ShellContent
+        Title="Profile"
+        ContentTemplate="{DataTemplate local:MainPage}"
+        Route="MainPage"/>
 
 </Shell>
 

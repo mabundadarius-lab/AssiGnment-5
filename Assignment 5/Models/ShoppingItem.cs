@@ -22,5 +22,8 @@ namespace AssiGnment_5.Models
 
         [Column("quantity")]
         public int Quantity { get; set; }
+
+        [Column("image_url")]
+        public string ImageUrl { get; set; } = string.Empty;
     }
 }
