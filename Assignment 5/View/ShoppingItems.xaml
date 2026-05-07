@@ -65,6 +65,8 @@
                            Color="Green"
                            VerticalOptions="Center"
                            HorizontalOptions="Center"/>
+        
+        
 
         <!-- Items list -->
         <CollectionView Grid.Row="3"
@@ -92,7 +94,39 @@
                            CornerRadius="14"
                            BackgroundColor="White"
                            HasShadow="True">
+                        
                         <VerticalStackLayout Spacing="6">
+                            
+                            <!-- IMAGE AREA — Grid allows two overlapping children -->
+                            <Grid HeightRequest="220"
+                                  BackgroundColor="#f8f8f8">
+
+                                <!-- Placeholder when no image -->
+                                <VerticalStackLayout
+                                    VerticalOptions="Center"
+                                    HorizontalOptions="Center"
+                                    Spacing="8"
+                                    IsVisible="{Binding HasImage,
+                                    Converter={StaticResource InvertBoolConverter}}">
+                                    
+                                    <Label Text="📷"
+                                           FontSize="48"
+                                           HorizontalOptions="Center"/>
+                                    <Label Text="No image available"
+                                           TextColor="#aaa"
+                                           FontSize="13"
+                                           HorizontalOptions="Center"/>
+                                </VerticalStackLayout>
+
+                                <!-- Full image — AspectFit so whole picture is visible -->
+                                <Image Source="{Binding ImageUrl}"
+                                       Aspect="AspectFit"
+                                       HorizontalOptions="Fill"
+                                       VerticalOptions="Fill"
+                                       IsVisible="{Binding HasImage}"
+                                       Margin="12"/>
+
+                            </Grid>
 
                             <Label Text="{Binding Name}"
                                    FontSize="17"

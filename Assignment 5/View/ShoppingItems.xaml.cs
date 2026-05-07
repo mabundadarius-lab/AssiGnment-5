@@ -9,17 +9,21 @@ namespace AssiGnment_5.View
         private readonly SupabaseService _supabase;
         private List<ShoppingItem> _items = new();
         private bool _hasProfile = false;
+        private readonly ShoppingItemsViewModel _vm;
 
         public ShoppingItems()
         {
             InitializeComponent();
             _supabase = new SupabaseService();
-           
+            _vm = new ShoppingItemsViewModel();
+            BindingContext = _vm;
+
         }
 
         protected override async void OnAppearing()
         {
             base.OnAppearing();
+            await _vm.InitAsync();
             await LoadEverything();
             
         }
@@ -72,6 +76,7 @@ namespace AssiGnment_5.View
 
             if (sender is Button btn && btn.CommandParameter is int itemId)
             {
+
                 try
                 {
                     var stored = Microsoft.Maui.Storage.Preferences.Get("UserId", string.Empty);
