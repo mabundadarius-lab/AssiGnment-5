@@ -102,7 +102,7 @@
 
             <!-- Go to Shopping — disabled until profile saved -->
             <Button x:Name="ShoppingButton"
-                    Text="Go to Shopping 🛒"
+                    Text="← Back to Shopping"
                     Clicked="OnShoppingClicked"
                     BackgroundColor="#1a73e8"
                     TextColor="White"

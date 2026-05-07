@@ -29,8 +29,6 @@ namespace AssiGnment_5.ViewModel
         }
 
         public string StockDisplay => $"In stock: {Quantity}";
-
-        // Show placeholder if no image URL set
         public bool HasImage => !string.IsNullOrWhiteSpace(ImageUrl);
 
         public event PropertyChangedEventHandler? PropertyChanged;
@@ -44,6 +42,27 @@ namespace AssiGnment_5.ViewModel
         private readonly Guid _profileId;
 
         public ObservableCollection<ShoppingItemDisplay> Items { get; } = new();
+
+        private bool _hasProfile;
+        public bool HasProfile
+        {
+            get => _hasProfile;
+            set
+            {
+                _hasProfile = value;
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(AddToCartColor));
+                OnPropertyChanged(nameof(AddToCartText));
+            }
+        }
+
+        // Button turns grey with lock icon when no profile
+        public Color AddToCartColor => HasProfile
+                                        ? Color.FromArgb("#2e7d32")
+                                        : Color.FromArgb("#aaaaaa");
+        public string AddToCartText => HasProfile
+                                        ? "🛒  Add to Cart"
+                                        : "🔒  Save Profile First";
 
         public ShoppingItemsViewModel()
         {

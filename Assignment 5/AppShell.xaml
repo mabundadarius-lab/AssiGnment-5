@@ -6,11 +6,10 @@
     xmlns:local="clr-namespace:AssiGnment_5.View"
     Shell.FlyoutBehavior="Disabled">
 
-    <!-- Profile page is the root -->
+    <!-- ShoppingItems is the landing page -->
     <ShellContent
-        Title="Profile"
-        ContentTemplate="{DataTemplate local:MainPage}"
-        Route="MainPage"/>
+        Title="Shoping Items"
+        ContentTemplate="{DataTemplate local:ShoppingItems}"
+        Route="ShoppingItems"/>
 
 </Shell>
-

@@ -50,7 +50,7 @@ namespace AssiGnment_5.View
 
         private async void OnViewProfileClicked(object sender, EventArgs e)
         {
-            await Shell.Current.GoToAsync("//MainPage");
+            await Shell.Current.GoToAsync("MainPage");
         }
     }
 }

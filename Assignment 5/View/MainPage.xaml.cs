@@ -241,7 +241,7 @@ namespace AssiGnment_5.View
             }
         }
 
-        // ─── HELPERS , updated to only show the Profile {Name}─────────────────────────────────────────────────────────────
+        // ─── HELPERS ─────────────────────────────────────────────────────────────
 
         private void UpdateHeading(string name, string surname)
         {
@@ -296,7 +296,7 @@ namespace AssiGnment_5.View
 
         private async void OnShoppingClicked(object sender, EventArgs e)
         {
-            await Shell.Current.GoToAsync(nameof(ShoppingItems));
+            await Shell.Current.GoToAsync("..");
         }
     }
 }

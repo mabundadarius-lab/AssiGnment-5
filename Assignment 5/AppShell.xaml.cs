@@ -8,8 +8,8 @@ namespace AssiGnment_5
         {
             InitializeComponent();
 
-            // Register routes for pages not in the Shell hierarchy
-            Routing.RegisterRoute(nameof(ShoppingItems), typeof(ShoppingItems));
+            // Register all navigation routes
+            Routing.RegisterRoute(nameof(MainPage), typeof(MainPage));
             Routing.RegisterRoute(nameof(ShoppingCart), typeof(ShoppingCart));
         }
     }
